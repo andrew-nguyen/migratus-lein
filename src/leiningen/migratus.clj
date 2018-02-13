@@ -69,10 +69,13 @@ command will be executed."
         (eval/eval-in-project project `(println (core/pending-list ~config)) '(require 'migratus.core)))
 
       "create"
-      (do
-        (println "creating migration files for" (clojure.string/join " " args))
-        (println
-          (eval/eval-in-project project `(core/create ~config ~(clojure.string/join " " args)) '(require 'migratus.core))))
+      (let [edn-or-sql (first args)
+            args (rest args)]
+        (println "creating" edn-or-sql "migration files for" (clojure.string/join " " args))
+        (eval/eval-in-project
+          project
+          `(core/create ~config ~(clojure.string/join " " args) ~(when (= ":edn" edn-or-sql) :edn))
+          '(require 'migratus.core)))
 
       "reset"
       (do
